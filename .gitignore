@@ -1,0 +1,16 @@
+.env
+.env.local
+*.log
+*.tar.gz
+*.tgz
+*.bundle
+*.bak
+*.tmp
+dist/
+build/
+reports/
+artifacts/
+bundles/
+state/
+__pycache__/
+.DS_Store

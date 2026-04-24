@@ -1,0 +1,3 @@
+external-sources=true
+enable=all
+exclude=SC2034

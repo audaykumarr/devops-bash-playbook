@@ -1,0 +1,50 @@
+name: Bash Quality
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  bash-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          set -euo pipefail
+          mapfile -t scripts < <(find . -type f -name '*.sh' | sort)
+          printf 'Checking %s shell scripts\n' "${#scripts[@]}"
+          shellcheck -x --severity=error "${scripts[@]}"
+
+      - name: Validate bash syntax
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' script; do
+            echo "bash -n $script"
+            bash -n "$script"
+          done < <(find . -type f -name '*.sh' -print0)
+
+      - name: Validate documentation parity
+        run: |
+          set -euo pipefail
+          while IFS= read -r -d '' script; do
+            doc="${script%.sh}.md"
+            if [[ ! -f "$doc" ]]; then
+              echo "Missing documentation for $script"
+              exit 1
+            fi
+          done < <(find . -type f -name '*.sh' -print0)
